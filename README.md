@@ -1,5 +1,6 @@
 # Deep-Learning
 Distracted Driver MultiAction Classification
+
 Data set : https://www.kaggle.com/c/state-farm-distracted-driver-detection
 
 Objective : Classify images into these 10 classes
@@ -14,14 +15,20 @@ Objective : Classify images into these 10 classes
 •	c7: reaching behind
 •	c8: hair and makeup
 •	c9: talking to passenger
+
 Programming Language : Python using TensorFlow 2.0 & Keras
+
 Model Architecture : Deep Learning using CNN
+
 About Data Set The Data set is images of different people in a driver seat doing different things. Data set already divided into Train and Test by folders.
+
 1.	Train Data - Has Classes as subfolders and each subfolder has images of only corresponding Class
+
 2.	Test Data - Has images of the all classes
 All the images are of 640x240 resolution
 Data Pre-Processing In order to build a Classification model we have to read and convert the images to a numerical array type data.
 Read Train Data
+
 # creating a training dataset.
 training_data = []
 i = 0
@@ -37,14 +44,23 @@ def create_training_data():
             training_data.append([new_img,class_num])
 
 create_training_data()
+
 Reading the Training images that are in the folders of each class
+
 1.	Declare an empty list Object where we will store the image array and the Class Label
+
 2.	loop through each Class folder and Store the Class Label
+
 3.	loop through each image in the folder
+
 4.	Read the Image
+
 5.	Resize the Image to 240x240
+
 6.	Add the Image and Class Label data to the Training Data list
+
 Seperate the feature(Image Data) and its labels(Class Label)
+
 x = [], y = []
 for features, label in training_data:
     x.append(features)
