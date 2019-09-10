@@ -62,13 +62,20 @@ Reading the Training images that are in the folders of each class
 Seperate the feature(Image Data) and its labels(Class Label)
 
 x = [], y = []
+
 for features, label in training_data:
+    
     x.append(features)
+    
     y.append(label)
+
 Convert the Class Labes to Categorical values(I used Keras utils)
+
 Y_train = utils.to_categorical(y_train,num_classes=10)
 Y_test = utils.to_categorical(y_test,num_classes=10)
+
 Model Building
+
 Implemented in TensorFlow 2.0 using Keras as high level api. Architecture used is Convolutional Neural Network(CNN)
 CNN Model : The model has 3 CNN Layers,Flattening layer and Fully connected Dense Layers
 
