@@ -81,9 +81,10 @@ Implemented in TensorFlow 2.0 using Keras as high level api. Architecture used i
 CNN Model : The model has 3 CNN Layers,Flattening layer and Fully connected Dense Layers
 
 Each Layer has
-•	2 Conv2D layers (first layer with input of shape 240,240,3 (240x240 - Image Scale, 3 - RGB Scale))
-•	2 BatchNormalization layers For Info click here
-•	1 Dropout Layer of rate 30%
+* 2 Conv2D layers (first layer with input of shape 240,240,3 (240x240 - Image Scale, 3 - RGB Scale))
+* 2 BatchNormalization layers 
+* 1 Dropout Layer of rate 30%
+
 Model Compilattion with loss='categorical_crossentropy',metrics='accuracy' and optimizer='adam'
 Call back for early stopping when test accuracy doesn't increase in 5 epochs
 callback = [callbacks.EarlyStopping(monitor='val_accuracy',patience=5)]
