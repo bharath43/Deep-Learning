@@ -72,6 +72,7 @@ for features, label in training_data:
 Convert the Class Labes to Categorical values(I used Keras utils)
 
 Y_train = utils.to_categorical(y_train,num_classes=10)
+
 Y_test = utils.to_categorical(y_test,num_classes=10)
 
 Model Building
