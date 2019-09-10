@@ -1,7 +1,9 @@
 # Deep-Learning
 Distracted Driver MultiAction Classification
 Data set : https://www.kaggle.com/c/state-farm-distracted-driver-detection
+
 Objective : Classify images into these 10 classes
+
 •	c0: safe driving
 •	c1: texting - right
 •	c2: talking on the phone - right
