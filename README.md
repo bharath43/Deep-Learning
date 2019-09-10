@@ -5,16 +5,16 @@ Data set : https://www.kaggle.com/c/state-farm-distracted-driver-detection
 
 Objective : Classify images into these 10 classes
 
-•	c0: safe driving
-•	c1: texting - right
-•	c2: talking on the phone - right
-•	c3: texting - left
-•	c4: talking on the phone - left
-•	c5: operating the radio
-•	c6: drinking
-•	c7: reaching behind
-•	c8: hair and makeup
-•	c9: talking to passenger
+* c0: safe driving
+* c1: texting - right
+* c2: talking on the phone - right
+* c3: texting - left
+* c4: talking on the phone - left
+* c5: operating the radio
+* c6: drinking
+* c7: reaching behind
+* c8: hair and makeup
+* c9: talking to passenger
 
 Programming Language : Python using TensorFlow 2.0 & Keras
 
@@ -101,12 +101,12 @@ img_array = cv2.imread(random_filename,cv2.IMREAD_COLOR)
 RGB_img = cv2.cvtColor(img_array, cv2.COLOR_BGR2RGB)
 new_img = cv2.resize(RGB_img,(img_size,img_size))
 
-3.	Predict and Display the image
+3.	Predict the image
 print('Prediction : {}'.format(model.predict_classes(new_img.reshape(-1,img_size,img_size,3))))
-plt.imshow(new_img)
-plt.show()
- 
-Save the Model & Weights
+
+
 Saving the model and the weights for transfer learning or model execution later
+
 model.save_weights('./driverdistraction_lr_weights.h5', overwrite=True)
+
 model.save('./driverdistraction.h5')
