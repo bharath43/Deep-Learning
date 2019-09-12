@@ -115,7 +115,6 @@ Random Validation on Test Data
 random_filename = random.choice([
     
     x for x in os.listdir(test_directory)
-    
     if os.path.isfile(os.path.join(test_directory, x))])
     random_filename=test_directory+random_filename
 
