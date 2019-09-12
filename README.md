@@ -100,7 +100,7 @@ Model Performance Review
 
 Model training vs validation accuracy and loss trend for each epoch
 
-![](master/Model_Training_Results.JPG)
+![](Images/Model_Training_Results.JPG)
  
 Plot Confusion Matrix to check if there are any imbalences in Validation Class prediction
 From the report it doen't look like there are any considerable imbalance classes for the model
