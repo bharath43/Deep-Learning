@@ -95,9 +95,12 @@ Each Layer has
 Model Compilattion with loss='categorical_crossentropy',metrics='accuracy' and optimizer='adam'
 Call back for early stopping when test accuracy doesn't increase in 5 epochs
 callback = [callbacks.EarlyStopping(monitor='val_accuracy',patience=5)]
+
 Model Performance Review
 
 Model training vs validation accuracy and loss trend for each epoch
+
+![](master/Model_Training_Results.JPG)
  
 Plot Confusion Matrix to check if there are any imbalences in Validation Class prediction
 From the report it doen't look like there are any considerable imbalance classes for the model
