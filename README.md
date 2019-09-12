@@ -30,11 +30,18 @@ Data Pre-Processing In order to build a Classification model we have to read and
 Read Train Data
 
 # creating a training dataset.
+
+
 training_data = []
+
 i = 0
+
 def create_training_data():
+    
     for category in classes:
+        
         path = os.path.join(directory,category)
+        
         class_num = classes.index(category)
         
         for img in os.listdir(path):
