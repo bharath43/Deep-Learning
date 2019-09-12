@@ -113,8 +113,11 @@ Random Validation on Test Data
 1.	Get a file name of image from Test folder
 
 random_filename = random.choice([
+    
     x for x in os.listdir(test_directory)
+    
     if os.path.isfile(os.path.join(test_directory, x))])
+
 random_filename=test_directory+random_filename
 
 2.	Read and Resize the image
