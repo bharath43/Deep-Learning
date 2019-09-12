@@ -105,7 +105,7 @@ Model training vs validation accuracy and loss trend for each epoch
 Plot Confusion Matrix to check if there are any imbalences in Validation Class prediction
 
 From the report it doen't look like there are any considerable imbalance classes for the model
- 
+![](Images/Confusion_Matrix.JPG)
 Classification Report to check Precision, Recall and F1 Score
 The Model Seem to performing well with score of 99%
  
