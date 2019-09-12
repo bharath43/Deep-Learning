@@ -111,19 +111,29 @@ The Model Seem to performing well with score of 99%
  
 Random Validation on Test Data
 1.	Get a file name of image from Test folder
+
 random_filename = random.choice([
     x for x in os.listdir(test_directory)
     if os.path.isfile(os.path.join(test_directory, x))])
 random_filename=test_directory+random_filename
 
 2.	Read and Resize the image
+
 img_array = cv2.imread(random_filename,cv2.IMREAD_COLOR)
+
 RGB_img = cv2.cvtColor(img_array, cv2.COLOR_BGR2RGB)
+
 new_img = cv2.resize(RGB_img,(img_size,img_size))
 
 3.	Predict the image
+
 print('Prediction : {}'.format(model.predict_classes(new_img.reshape(-1,img_size,img_size,3))))
 
+plt.imshow(new_img)
+
+plt.show()
+
+![](Images/prediction.JPG)
 
 Saving the model and the weights for transfer learning or model execution later
 
