@@ -1,7 +1,6 @@
 # Deep-Learning
 Deep Learning Projects
 Multiclass Multilabel Prediction For StackOverflow Questions
-Data set : https://www.kaggle.com/therajeshreddy/stackoverflow
 
 Objective : Given text for Questions from StackoverFlow posts, predict tags associated with them.
 
