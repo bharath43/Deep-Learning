@@ -1,144 +1,172 @@
-# Deep-Learning
+# Multiclass Multilabel Prediction For StackOverflow Questions
 
-# Distracted Driver MultiAction Classification
+**Data set** : https://www.kaggle.com/therajeshreddy/stackoverflow
 
-Data set : https://www.kaggle.com/c/state-farm-distracted-driver-detection
+**Objective** : Given text for Questions from StackoverFlow posts, predict tags associated with them.
 
-# Objective
-Classify images into these 10 classes
+This is a scaled down version of predecting only top 10 most occurring tags 
 
-* c0: safe driving
-* c1: texting - right
-* c2: talking on the phone - right
-* c3: texting - left
-* c4: talking on the phone - left
-* c5: operating the radio
-* c6: drinking
-* c7: reaching behind
-* c8: hair and makeup
-* c9: talking to passenger
+**Programming Language** : Python using nltk & Keras
 
-Programming Language : Python using TensorFlow 2.0 & Keras
+**Model Architecture** : Deep Learning using Recurrent Neural Network (RNN)
 
-Model Architecture : Deep Learning using CNN
+**About Data Set** 
 
-About Data Set The Data set is images of different people in a driver seat doing different things. Data set already divided into Train and Test by folders.
+Dataset has text of questions, answers and thier corresponding tags from the Stack Overflow programming Q&A website.
 
-1.	Train Data - Has Classes as subfolders and each subfolder has images of only corresponding Class
+This is organized as three files:
 
-2.	Test Data - Has images of the all classes
-All the images are of 640x240 resolution
-Data Pre-Processing In order to build a Classification model we have to read and convert the images to a numerical array type data.
-Read Train Data
+1. Questions contains the title, body, creation date, closed date (if applicable), score, and owner ID for all non-deleted Stack Overflow questions.
 
-# creating a training dataset.
+2. Tags contains the tags on each of these questions.
+
+3. Answers contains the body, creation date, score, and owner ID for each of the answers to these questions. The ParentId column links back to the Questions table. *We don't use this file as we want to predict Tags given a question*
+
+**Data Pre-Processing**
+
+>Questions File
+*Code* : Stackoverflow Clean Questions.ipynb
+
+1. Read Questions File
+2. Drop All columns except Id,Title and Body
+3. Now the text in the Body column seem to have many html tags in the text. We use Regular Expressions and Clean the Body column text by removing the html tags
+```python
+import re 
+def rem_html_tags(body):
+    regex = re.compile('<.*?>')
+    return re.sub(regex, '', body)
+ques['Body'] = ques['Body'].apply(rem_html_tags)
+```
+4. Save the questions file for later use
+```python
+ques.to_csv('question_clean.csv',index=False)
+```
+
+>Tags File
+*Code* : Stackoverflow Tags Map & Model.ipynb
+
+1. Read Tags File
+2. Identify top 10 Tags by count
+```python
+tagCount =  collections.Counter(list(df_tags['Tag'])).most_common(10)
+print(tagCount)
+
+[('javascript', 124155), ('java', 115212), ('c#', 101186), ('php', 98808), ('android', 90659), ('jquery', 78542), ('python', 64601), ('html', 58976), ('c++', 47591), ('ios', 47009)]
+```
+
+<img src="Images/top10_tags.JPG" width="600">
+
+3. Manipulate the tags dataframe so that all the Tags for an ID are as a list in a row (grouped by Question ID)
+
+```python
+def add_tags(question_id):
+    return tag_top10[tag_top10['Id'] == question_id['Id']].Tag.values
+
+top10 = tag_top10.apply(add_tags, axis=1)
+```
 
 
-training_data = []
+>Combine the Questions and Tags
+*Code* : Stackoverflow Tags Map & Model.ipynb
 
-i = 0
+Merge the Questions and Tags data frame by ID
 
-def create_training_data():
-    
-    for category in classes:
-        
-        path = os.path.join(directory,category)
-        
-        class_num = classes.index(category)
-        
-        for img in os.listdir(path):
-            img_array = cv2.imread(os.path.join(path,img),cv2.IMREAD_COLOR)
-            RGB_img = cv2.cvtColor(img_array, cv2.COLOR_BGR2RGB)
-            new_img = cv2.resize(RGB_img,(img_size,img_size))
-            training_data.append([new_img,class_num])
+```python
+total=pd.merge(ques, top10_tags, on='Id')
+```
 
-create_training_data()
+Our Dataset would now have only Id, Title, Body & Tags
 
-Reading the Training images that are in the folders of each class
+>Text Preprocessing
+*Code* : Stackoverflow Tags Map & Model.ipynb
 
-1.	Declare an empty list Object where we will store the image array and the Class Label
+We will use nltk, preprocessing from Keras and sklearn to process the text data
 
-2.	loop through each Class folder and Store the Class Label
+*Tags preprocesing*
+Use MultiLabelBinarizer from sklearn on the Class labels(Tags)
+```python
+from sklearn.preprocessing import MultiLabelBinarizer
+multilabel_binarizer = MultiLabelBinarizer()
+multilabel_binarizer.fit(total.Tags)
+print(multilabel_binarizer.classes_)
 
-3.	loop through each image in the folder
+array(['android', 'c#', 'c++', 'html', 'ios', 'java', 'javascript','jquery', 'php', 'python'], dtype=object)
+```
 
-4.	Read the Image
+*Title & Body Preprocessing*
+1. Tokenize the words
+2. Convert the tokenized words to sequences
 
-5.	Resize the Image to 240x240
+**Model Building** 
 
-6.	Add the Image and Class Label data to the Training Data list
+Implemented a Hybrid model in TensorFlow using Keras as high level api. Architecture used is RNN. In this model first we train a model using the Title data, then train a model using the Body data. Outputs of both are concatenated and passed thorugh the dense layers before connecting to the output layer
 
-Seperate the feature(Image Data) and its labels(Class Label)
+*RNN Model* : The model first uses GRU for the sequence data training with 2 GRU layers one for Title and other for Body. 
 
-x = [], y = []
+RNN for Title has
+  - 1 Embedding Layer has input of Title vocabulary length(68969) + 1(for 0 padding) and out put of 2000 embeddings (for better results use full vocabulary length+1)
+  - 1 Gated recurrent unit (GRU) layer
+  - 1 dense output layer of shape 10(No of classes(tags) we are trying to predict) 
 
-for features, label in training_data:
-    
-    x.append(features)
-    
-    y.append(label)
+```python
+    # Title Only
+    title_input = Input(name='title_input',shape=[max_len_t])
+    title_Embed = Embedding(vocab_len_t+1,2000,input_length=max_len_t,mask_zero=True,name='title_Embed')(title_input)
+    gru_out_t = GRU(300)(title_Embed)
+    # auxiliary output to tune GRU weights smoothly 
+    auxiliary_output = Dense(10, activation='sigmoid', name='aux_output')(gru_out_t) 
+```
 
-Convert the Class Labes to Categorical values(I used Keras utils)
+RNN for Body has
+  - 1 Embedding Layer has input of Title vocabulary length(1292018) + 1(for 0 padding) and out put of 170 embeddings (for better results use full vocabulary length+1)
+  - 1 Gated recurrent unit (GRU) layer
 
-Y_train = utils.to_categorical(y_train,num_classes=10)
+```python
+    # Body Only
+    body_input = Input(name='body_input',shape=[max_len_b]) 
+    body_Embed = Embedding(vocab_len_b+1,170,input_length=max_len_b,mask_zero=True,name='body_Embed')(body_input)
+    gru_out_b = GRU(200)(body_Embed) 
+```
 
-Y_test = utils.to_categorical(y_test,num_classes=10)
+Combine the 2 GRU outputs
+```python
+    com = concatenate([gru_out_t, gru_out_b])
+```
 
-Model Building
+The fully connected network has
+  - 2 Dense Layers 
+  - 1 Dropout layer
+  - 1 BatchNormalization layer
+  - 1 Dense Output layer
+  
+```python
+    # now the combined data is being fed to dense layers
+    dense1 = Dense(400,activation='relu')(com)
+    dp1 = Dropout(0.5)(dense1)
+    bn = BatchNormalization()(dp1) 
+    dense2 = Dense(150,activation='relu')(bn)
+    main_output = Dense(10, activation='sigmoid', name='main_output')(dense2)
+```
 
-Implemented in TensorFlow 2.0 using Keras as high level api. Architecture used is Convolutional Neural Network(CNN)
-CNN Model : The model has 3 CNN Layers,Flattening layer and Fully connected Dense Layers
+*Model Compilattion with optimizer='adam', loss='categorical_crossentropy', metrics='accuracy')*
 
-Each Layer has
-* 2 Conv2D layers (first layer with input of shape 240,240,3 (240x240 - Image Scale, 3 - RGB Scale))
-* 2 BatchNormalization layers 
-* 1 Dropout Layer of rate 30%
+**Model Performance Review**
 
-Model Compilattion with loss='categorical_crossentropy',metrics='accuracy' and optimizer='adam'
-Call back for early stopping when test accuracy doesn't increase in 5 epochs
-callback = [callbacks.EarlyStopping(monitor='val_accuracy',patience=5)]
+*Classification Report to check Precision, Recall and F1 Score*
 
-Model Performance Review
+The Model seem to performing good enough with score of 84%. Increase in the Embedding, GRU and dense layers would help in getting better results
 
-Model training vs validation accuracy and loss trend for each epoch
+<img src="Images/Classification_Report.JPG" width="400">
 
-![](Images/Model_Training_Results.JPG)
- 
-Plot Confusion Matrix to check if there are any imbalences in Validation Class prediction
+**Random Validation on Test Data**
 
-From the report it doen't look like there are any considerable imbalance classes for the model
-![](Images/Confusion_Matrix.JPG)
-Classification Report to check Precision, Recall and F1 Score
-The Model Seem to performing well with score of 99%
- 
-Random Validation on Test Data
-1.	Get a file name of image from Test folder
+<img src="Images/prediction.JPG" width="400">
 
-    random_filename = random.choice([
-    x for x in os.listdir(test_directory)
-    if os.path.isfile(os.path.join(test_directory, x))])
-    random_filename=test_directory+random_filename
 
-2.	Read and Resize the image
+**Save the Model & Weights**
 
-img_array = cv2.imread(random_filename,cv2.IMREAD_COLOR)
+Saving the model for transfer learning or model execution later
 
-RGB_img = cv2.cvtColor(img_array, cv2.COLOR_BGR2RGB)
-
-new_img = cv2.resize(RGB_img,(img_size,img_size))
-
-3.	Predict the image
-
-print('Prediction : {}'.format(model.predict_classes(new_img.reshape(-1,img_size,img_size,3))))
-
-plt.imshow(new_img)
-
-plt.show()
-
-![](Images/prediction.JPG)
-
-Saving the model and the weights for transfer learning or model execution later
-
-model.save_weights('./driverdistraction_lr_weights.h5', overwrite=True)
-
-model.save('./driverdistraction.h5')
+```python
+model.save('./stackoverflow_tags.h5')
+```
